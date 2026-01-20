@@ -8,6 +8,13 @@ shows how you can create custom commands in `preset` package. has very simple la
 
 shows the `preset`'s package ability to do cycle detection, it has a cool diagram showing the cycle 
 
+```
+panic: cycle detected:
+        ┌→┌─/a.txt: {{include b.txt}}
+        │ └→/b.txt: {{include c.txt}}
+        └─└→/c.txt: {{include a.txt}}
+```
+
 # txt-files
 
 shows how to use the `preset` package to have one `.txt` file include a other `.txt` file with `DoubleBraceSyntax`
