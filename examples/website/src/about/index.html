@@ -1,0 +1,69 @@
+<g-extend /includes/base.html>
+	<g-define title>about</g-define>
+
+	<g-define content>
+		<h1>about graft</h1>
+
+		<p>graft is a static file preprocessor made in go</p>
+
+		<h2>why is it useful</h2>
+
+		<p>
+			imagine this, youre making a website, you need to make the 50th page of your
+			blog, so you duplicate your previous blog posts html file. after finishing
+			your 50th blog post, you realize that its time for a new header, but... oh
+			no! you have to edit every single file and its header!
+		</p>
+
+		<p>
+			guess what you can do with graft. its basically a templating engine so you
+			can just have a <code>header.html</code> then in your
+			<code>base.html</code> file you can include your
+			<code>header.html</code> like
+			<code>&lt;g-include header.html&gt;</code> and voila! all your pages
+			include only a reference to your header instead of a complete copy of it
+		</p>
+
+		<p>
+			you can also use the extend command to do templating, you can have a
+			<code>base.html</code> with a bunch of
+			<code>&lt;g-block [name] /&gt;</code> commands and then in your
+			<code>index.html</code> file have a
+			<code>&lt;g-extend base.html&gt;</code> command with
+			<code>&lt;g-define [name]&gt;</code> commands and voila again! all your
+			pages all have the same underlying html structure
+		</p>
+
+		<h2>why use graft instead of other templating engines</h2>
+
+		<ul>
+			<li>
+				<b>any language.</b> it works on any text. its not html only, markdown
+				only, etc.
+			</li>
+			<li>
+				<b>no runtime.</b> everything is processed at build time. it only
+				outputs plain files and theres no dependancies after its built
+			</li>
+			<li>
+				<b>user commands.</b> many preprocessors hardcode behavior, but graft
+				commands are go code and written by the user. you can build anything
+				into graft you want
+			</li>
+			<li>
+				<b>tree based.</b> since commands rewrite an AST, it makes it easy to
+				build complex transformations and extensions
+			</li>
+			<li>
+				<b>very hackable.</b> there is a preset package which will let you get
+				quickstarted but if you need more customization, you can drop to a lower
+				level and deal with the tokenizer and parser yourself
+			</li>
+			<li>
+				<b>very lightweight.</b> other templating engines can be very heavy,
+				especially since many are runtime based. which means a worse experience
+				for users because of website loading times
+			</li>
+		</ul>
+	</g-define>
+</g-extend>

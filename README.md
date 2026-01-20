@@ -1,0 +1,21 @@
+# graft
+
+graft is a lightweight and programmable static preprocessor/templating engine
+
+it takes static files with include or templating commands, and outputs the same static files but with the commands resolved. so include commands are replaced with other files, extend commands will template into other files, etc. 
+
+without graft, you might have many HTML (or other) files with repeated sections, all of which must be updated manually. with graft, you can include files into other files using commands like `<g-include header.html />`. after compilation, itll be just like you copy and pasted that file
+
+i havent made a full scale website to test it with yet but soon ill be starting a project which will use this, and ill probably find bugs that i will fix
+
+## examples
+
+graft is probably most useful for making websites following DRY principles. see `examples/website`
+
+but its not only for websites, it can be used for anything static, such as txt files. see `examples/txt-files`and `examples/custom-commands`
+
+for more examples see the `examples` directory
+
+## credits
+
+- [mattn's go-shellwords](github.com/mattn/go-shellwords) - MIT
