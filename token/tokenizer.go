@@ -3,7 +3,6 @@ package token
 import (
 	"fmt"
 
-	"github.com/mattn/go-shellwords"
 	"github.com/notwithering/graft/syntax"
 )
 
@@ -36,7 +35,7 @@ func Tokenize(data string, syntax *syntax.Syntax) ([]*Token, error) {
 			continue
 		}
 
-		args, err := shellwords.Parse(rawCommand)
+		args, err := syntax.Parse(rawCommand)
 		if err != nil {
 			return nil, fmt.Errorf("parsing args: %w", err)
 		}

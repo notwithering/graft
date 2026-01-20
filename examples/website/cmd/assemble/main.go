@@ -8,7 +8,7 @@ import (
 var (
 	root     = "./src"
 	syntaxes = map[string]*syntax.Syntax{
-		"html": syntax.SGMLTagSyntax,
+		"html": syntax.PrettierHTMLTagSyntax,
 	}
 	commands = preset.DefaultCommands
 	dest     = "./dist"

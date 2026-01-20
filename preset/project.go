@@ -82,9 +82,9 @@ func (proj *Project) Assemble(syntaxes map[string]*syntax.Syntax, commands map[s
 }
 
 var (
-	ErrCycle              = errors.New("cycle detected")
-	ErrNodeSourceNotFound = errors.New("node source not found")
-	ErrNodeTargetNotFound = errors.New("node target not found")
+	ErrCycle          = errors.New("cycle detected")
+	ErrSourceNotFound = errors.New("source not found")
+	ErrTargetNotFound = errors.New("target not found")
 )
 
 func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
@@ -118,14 +118,14 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 				case ArgTypeSourcePtr:
 					nsrc, ok := proj.NodeSourceMap[ctx.Node]
 					if !ok {
-						return nil, fmt.Errorf("%w: %v", ErrNodeSourceNotFound, ctx.Node)
+						return nil, fmt.Errorf("%s %w: %v", src.LocalPath, ErrSourceNotFound, ctx.Node)
 					}
 
 					targetPath := pathutil.TargetPath(nsrc.LocalPath, arg)
 
 					targetSource, ok := proj.Sources[targetPath]
 					if !ok {
-						return nil, fmt.Errorf("%w: %s", ErrNodeTargetNotFound, targetPath)
+						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrTargetNotFound, targetPath)
 					}
 
 					args = append(args, targetSource)
