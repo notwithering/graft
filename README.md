@@ -1,6 +1,6 @@
 # graft
 
-graft is a lightweight and programmable static preprocessor/templating engine
+graft is a lightweight hackable static file preprocessor  
 
 it takes static files with include or templating commands, and outputs the same static files but with the commands resolved. so include commands are replaced with other files, extend commands will template into other files, etc. 
 
