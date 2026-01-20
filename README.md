@@ -20,4 +20,4 @@ for more examples see the `examples` directory
 
 ## credits
 
-- [mattn's go-shellwords](github.com/mattn/go-shellwords) - MIT
+- [mattn's go-shellwords](https://github.com/mattn/go-shellwords) - MIT
