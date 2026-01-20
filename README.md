@@ -8,6 +8,8 @@ without graft, you might have many HTML (or other) files with repeated sections,
 
 i havent made a full scale website to test it with yet but soon ill be starting a project which will use this, and ill probably find bugs that i will fix
 
+btw if you have any questions, make an issue, literally nothing has documentation so if you need to know how something works then make an issue
+
 ## examples
 
 graft is probably most useful for making websites following DRY principles. see `examples/website`
