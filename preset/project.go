@@ -113,7 +113,7 @@ var (
 func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 	for _, src := range proj.Sources {
 		newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
-			if ctx.Node.Resolved || ctx.Node.Kind != ast.NodeCommand {
+			if ctx.Node.Kind != ast.NodeCommand {
 				return nil, nil
 			}
 

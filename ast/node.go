@@ -10,9 +10,6 @@ type Node struct {
 	Text    string
 
 	Children []*Node
-
-	Resolved  bool
-	Resolving bool
 }
 
 type NodeKind uint8
@@ -35,12 +32,10 @@ func (n Node) String() string {
 
 func (n Node) Clone() *Node {
 	return &Node{
-		Kind:      n.Kind,
-		Command:   n.Command,
-		Data:      n.Data,
-		Text:      n.Text,
-		Children:  append([]*Node{}, n.Children...),
-		Resolved:  n.Resolved,
-		Resolving: n.Resolving,
+		Kind:     n.Kind,
+		Command:  n.Command,
+		Data:     n.Data,
+		Text:     n.Text,
+		Children: append([]*Node{}, n.Children...),
 	}
 }
