@@ -21,4 +21,4 @@ shows how to use the `preset` package to have one `.txt` file include a other `.
 
 # website
 
-shows how to use the `preset` package to create a website with `SGMLTagSyntax` and how to use the `include` and `extend` commands, aswell as `extend`'s subcommands, `define` and `block`
+shows how to use the `preset` package to create a website with `HTMLTagSyntax` and how to use the `include` and `extend` commands, aswell as `extend`'s subcommands, `define` and `block`
