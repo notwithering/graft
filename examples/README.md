@@ -10,9 +10,9 @@ shows the `preset`'s package ability to do cycle detection, it has a cool diagra
 
 ```
 panic: cycle detected:
-        ┌→┌─/a.txt: {{include b.txt}}
-        │ └→/b.txt: {{include c.txt}}
-        └─└→/c.txt: {{include a.txt}}
+        ┌→┌─/a.txt: {{include src=b.txt}}
+        │ └→/b.txt: {{include src=c.txt}}
+        └─└→/c.txt: {{include src=a.txt}}
 ```
 
 # txt-files
