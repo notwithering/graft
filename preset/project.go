@@ -50,39 +50,48 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[st
 			return err
 		}
 
-		tokens, err := token.Tokenize(src.RawData, syntax)
-		if err != nil {
-			return fmt.Errorf("tokenize %s: %w", src.LocalPath, err)
-		}
-
-		for _, token := range tokens {
-			if token.Data == nil {
-				continue
+		if syntax == nil {
+			src.Tree = []*ast.Node{
+				&ast.Node{
+					Kind: ast.NodeText,
+					Text: src.RawData,
+				},
+			}
+		} else {
+			tokens, err := token.Tokenize(src.RawData, syntax)
+			if err != nil {
+				return fmt.Errorf("tokenize %s: %w", src.LocalPath, err)
 			}
 
-			_, ok := token.Data.(map[string]any)
-			if !ok {
-				return fmt.Errorf("%w: %s", ErrUnsupportedSyntaxReturnType, reflect.TypeOf(token.Data))
+			for _, token := range tokens {
+				if token.Data == nil {
+					continue
+				}
+
+				_, ok := token.Data.(map[string]any)
+				if !ok {
+					return fmt.Errorf("%w: %s", ErrUnsupportedSyntaxReturnType, reflect.TypeOf(token.Data))
+				}
 			}
-		}
 
-		blocks := make(map[string]bool)
-		for name, spec := range commands {
-			if spec.Block {
-				blocks[name] = true
+			blocks := make(map[string]bool)
+			for name, spec := range commands {
+				if spec.Block {
+					blocks[name] = true
+				}
 			}
-		}
 
-		tree, err := parser.BuildTree(tokens, blocks)
-		if err != nil {
-			return fmt.Errorf("build tree for %s: %w", src.LocalPath, err)
-		}
-		src.Tree = tree
+			tree, err := parser.BuildTree(tokens, blocks)
+			if err != nil {
+				return fmt.Errorf("build tree for %s: %w", src.LocalPath, err)
+			}
+			src.Tree = tree
 
-		ast.WalkList(tree, func(ctx *ast.WalkContext) error {
-			proj.NodeSourceMap[ctx.Node] = src
-			return nil
-		})
+			ast.WalkList(tree, func(ctx *ast.WalkContext) error {
+				proj.NodeSourceMap[ctx.Node] = src
+				return nil
+			})
+		}
 
 		proj.Sources[src.LocalPath] = src
 		return nil
