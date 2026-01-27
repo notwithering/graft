@@ -12,7 +12,7 @@ var ErrRelativePath = errors.New("relative path")
 func LocalFromReal(root, realPath string) (string, error) {
 	localPath, err := filepath.Rel(root, realPath)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", ErrRelativePath, err)
+		return "", fmt.Errorf("LocalFromReal: %w: %w", ErrRelativePath, err)
 	}
 
 	// WARN: may break with ../stuff -> /../stuff -> /stuff if path is outside of root (prob wont happen)

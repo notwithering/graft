@@ -15,6 +15,8 @@ var (
 )
 
 func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, error) {
+	const errBase = "BuildTree: %w"
+
 	root := []*ast.Node{}
 	var nodeStack stack.Stack[*ast.Node]
 
@@ -44,7 +46,7 @@ func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, erro
 			}
 		case token.TokenClose:
 			if nodeStack.Len() == 0 {
-				return nil, fmt.Errorf("%w", ErrUnmatchedEnd)
+				return nil, fmt.Errorf(errBase, ErrUnmatchedEnd)
 			}
 			nodeStack.Pop()
 
@@ -57,7 +59,7 @@ func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, erro
 	}
 
 	if nodeStack.Len() != 0 {
-		return nil, fmt.Errorf("%w", ErrUnclosedBlocks)
+		return nil, fmt.Errorf(errBase, ErrUnclosedBlocks)
 	}
 
 	return root, nil

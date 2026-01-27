@@ -111,6 +111,9 @@ var (
 )
 
 func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
+	const errBase = "Resolve: %w"
+	const errValBase = "Resolve: %w: %v"
+
 	for _, src := range proj.Sources {
 		newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
 			if ctx.Node.Kind != ast.NodeCommand {
@@ -118,7 +121,7 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 			}
 
 			if slices.Contains(ctx.Path, ctx.Node) {
-				return nil, fmt.Errorf("%w:\n%s", ErrCycle, proj.showCycle(ctx))
+				return nil, fmt.Errorf(errValBase, ErrCycle, "\n"+proj.showCycle(ctx))
 			}
 
 			spec, ok := commands[ctx.Node.Command]
@@ -138,25 +141,25 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 				case ArgTypeString:
 					argStr, ok := arg.(string)
 					if !ok {
-						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrIncompatibleType, reflect.TypeOf(arg))
+						return nil, fmt.Errorf(errValBase, ErrIncompatibleType, reflect.TypeOf(arg))
 					}
 
 					args[key] = argStr
 				case ArgTypeSourcePtr:
 					nsrc, ok := proj.NodeSourceMap[ctx.Node]
 					if !ok {
-						return nil, fmt.Errorf("%s %w: %v", src.LocalPath, ErrSourceNotFound, ctx.Node)
+						return nil, fmt.Errorf(errValBase, ErrSourceNotFound, ctx.Node)
 					}
 
 					argStr, ok := arg.(string)
 					if !ok {
-						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrIncompatibleType, reflect.TypeOf(arg))
+						return nil, fmt.Errorf(errValBase, ErrIncompatibleType, reflect.TypeOf(arg))
 					}
 					targetPath := pathutil.TargetPath(nsrc.LocalPath, argStr)
 
 					targetSource, ok := proj.Sources[targetPath]
 					if !ok {
-						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrTargetNotFound, targetPath)
+						return nil, fmt.Errorf(errValBase, ErrTargetNotFound, targetPath)
 					}
 
 					args[key] = targetSource
@@ -197,7 +200,9 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 
 func (proj *Project) Write(dest string) error {
 	for _, src := range proj.Sources {
-		src.Write(dest)
+		if err := src.Write(dest); err != nil {
+			return err
+		}
 	}
 
 	return nil
