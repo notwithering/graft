@@ -5,17 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mattn/go-shellwords"
 	"golang.org/x/net/html"
 )
-
-func parseShellWords(s string) (command string, data any, err error) {
-	args, err := shellwords.Parse(s)
-	if len(args) == 0 {
-		return "", nil, err
-	}
-	return args[0], args[1:], err
-}
 
 var (
 	HTMLTagSyntax = &Syntax{

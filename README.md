@@ -19,7 +19,3 @@ for more examples see the `examples` directory
 i havent made a full scale website to test it with yet but soon ill be starting a project which will use this, and ill probably find bugs that i will fix
 
 btw if you have any questions, make an issue, literally nothing has documentation so if you need to know how something works then make an issue
-
-## credits
-
-- [mattn's go-shellwords](https://github.com/mattn/go-shellwords) - MIT
