@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"reflect"
 	"slices"
 
 	"github.com/notwithering/graft/ast"
 	"github.com/notwithering/graft/parser"
 	"github.com/notwithering/graft/pathutil"
-	"github.com/notwithering/graft/syntax"
 	"github.com/notwithering/graft/token"
 )
 
@@ -32,7 +32,9 @@ func NewProject(projectConfig ProjectConfig) *Project {
 	}
 }
 
-func (proj *Project) Assemble(syntaxes map[string]*syntax.Syntax, commands map[string]*CommandSpec) error {
+var ErrUnsupportedSyntaxReturnType = errors.New("unsupported syntax return type")
+
+func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[string]*CommandSpec) error {
 	err := filepath.Walk(proj.Config.Root, func(realPath string, info fs.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
@@ -51,6 +53,17 @@ func (proj *Project) Assemble(syntaxes map[string]*syntax.Syntax, commands map[s
 		tokens, err := token.Tokenize(src.RawData, syntax)
 		if err != nil {
 			return fmt.Errorf("tokenize %s: %w", src.LocalPath, err)
+		}
+
+		for _, token := range tokens {
+			if token.Data == nil {
+				continue
+			}
+
+			_, ok := token.Data.(map[string]any)
+			if !ok {
+				return fmt.Errorf("%w: %s", ErrUnsupportedSyntaxReturnType, reflect.TypeOf(token.Data))
+			}
 		}
 
 		blocks := make(map[string]bool)
@@ -82,9 +95,10 @@ func (proj *Project) Assemble(syntaxes map[string]*syntax.Syntax, commands map[s
 }
 
 var (
-	ErrCycle          = errors.New("cycle detected")
-	ErrSourceNotFound = errors.New("source not found")
-	ErrTargetNotFound = errors.New("target not found")
+	ErrCycle            = errors.New("cycle detected")
+	ErrIncompatibleType = errors.New("incompatible type")
+	ErrSourceNotFound   = errors.New("source not found")
+	ErrTargetNotFound   = errors.New("target not found")
 )
 
 func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
@@ -98,37 +112,45 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 				return nil, fmt.Errorf("%w:\n%s", ErrCycle, proj.showCycle(ctx))
 			}
 
-			spec, ok := commands[ctx.Node.Args[0]]
+			spec, ok := commands[ctx.Node.Command]
 			if !ok {
 				return nil, nil
 			}
 
-			if len(ctx.Node.Args)-1 != len(spec.Args) {
-				return nil, nil
-			}
+			args := make(map[string]any)
 
-			var args []any
-
-			for i, argType := range spec.Args {
-				arg := ctx.Node.Args[i+1]
+			for key, arg := range ctx.Node.Data.(map[string]any) {
+				argType, ok := spec.Args[key]
+				if !ok {
+					continue
+				}
 
 				switch argType {
 				case ArgTypeString:
-					args = append(args, ctx.Node.Args[i+1])
+					argStr, ok := arg.(string)
+					if !ok {
+						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrIncompatibleType, reflect.TypeOf(arg))
+					}
+
+					args[key] = argStr
 				case ArgTypeSourcePtr:
 					nsrc, ok := proj.NodeSourceMap[ctx.Node]
 					if !ok {
 						return nil, fmt.Errorf("%s %w: %v", src.LocalPath, ErrSourceNotFound, ctx.Node)
 					}
 
-					targetPath := pathutil.TargetPath(nsrc.LocalPath, arg)
+					argStr, ok := arg.(string)
+					if !ok {
+						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrIncompatibleType, reflect.TypeOf(arg))
+					}
+					targetPath := pathutil.TargetPath(nsrc.LocalPath, argStr)
 
 					targetSource, ok := proj.Sources[targetPath]
 					if !ok {
 						return nil, fmt.Errorf("%s %w: %s", src.LocalPath, ErrTargetNotFound, targetPath)
 					}
 
-					args = append(args, targetSource)
+					args[key] = targetSource
 				}
 			}
 

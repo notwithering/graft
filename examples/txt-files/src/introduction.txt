@@ -1,1 +1,1 @@
-Hello, my name is {{include name.txt}}.
+Hello, my name is {{include src=name.txt}}.

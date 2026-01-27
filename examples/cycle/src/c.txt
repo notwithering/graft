@@ -1,1 +1,1 @@
-{{include a.txt}}
+{{include src=a.txt}}

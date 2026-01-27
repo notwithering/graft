@@ -5,8 +5,9 @@ import "fmt"
 type Node struct {
 	Kind NodeKind
 
-	Args []string
-	Text string
+	Command string
+	Data    any
+	Text    string
 
 	Children []*Node
 
@@ -35,7 +36,8 @@ func (n Node) String() string {
 func (n Node) Clone() *Node {
 	return &Node{
 		Kind:      n.Kind,
-		Args:      append([]string{}, n.Args...),
+		Command:   n.Command,
+		Data:      n.Data,
 		Text:      n.Text,
 		Children:  append([]*Node{}, n.Children...),
 		Resolved:  n.Resolved,

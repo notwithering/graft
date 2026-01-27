@@ -5,7 +5,7 @@ import (
 )
 
 type CommandSpec struct {
-	Args    []ArgType
+	Args    map[string]ArgType
 	Block   bool
 	Rewrite RewriteFunc
 }
@@ -23,5 +23,5 @@ type Context struct {
 	Project *Project
 	Source  *Source
 	Node    *ast.Node
-	Args    []any
+	Args    map[string]any
 }

@@ -4,8 +4,10 @@ import "fmt"
 
 type Token struct {
 	Kind TokenKind
-	Args []string
-	Text string
+	// Args []string
+	Command string
+	Data    any
+	Text    string
 }
 
 type TokenKind uint8

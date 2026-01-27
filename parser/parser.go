@@ -29,14 +29,15 @@ func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, erro
 			})
 		case token.TokenOpen:
 			nod := &ast.Node{
-				Kind: ast.NodeCommand,
-				Args: tok.Args,
-				Text: tok.Text,
+				Kind:    ast.NodeCommand,
+				Command: tok.Command,
+				Data:    tok.Data,
+				Text:    tok.Text,
 			}
 
 			*current = append(*current, nod)
 
-			if blocks[tok.Args[0]] {
+			if blocks[tok.Command] {
 				nod.Children = []*ast.Node{}
 				nodeStack.Push(nod)
 				current = &nod.Children

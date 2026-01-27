@@ -5,20 +5,20 @@ import (
 
 	"github.com/notwithering/graft/ast"
 	"github.com/notwithering/graft/preset"
-	"github.com/notwithering/graft/syntax"
+	"github.com/notwithering/graft/token"
 )
 
 var (
 	root     = "./src"
-	syntaxes = map[string]*syntax.Syntax{
-		"txt": syntax.DoubleBraceSyntax,
+	syntaxes = map[string]*token.Syntax{
+		"txt": token.DoubleBraceSyntax,
 	}
 	commands = map[string]*preset.CommandSpec{
 		"extend": preset.ExtendCommand,
 		"define": preset.DefineCommand,
 		"block":  preset.BlockCommand,
 		"last-built": {
-			Args:  []preset.ArgType{},
+			Args:  map[string]preset.ArgType{},
 			Block: false,
 			Rewrite: func(ctx *preset.Context) ([]*ast.Node, error) {
 				return []*ast.Node{{

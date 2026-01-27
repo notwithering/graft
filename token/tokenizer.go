@@ -2,21 +2,19 @@ package token
 
 import (
 	"fmt"
-
-	"github.com/notwithering/graft/syntax"
 )
 
-func Tokenize(data string, syntax *syntax.Syntax) ([]*Token, error) {
+func Tokenize(data string, syntax *Syntax) ([]*Token, error) {
 	var tokens []*Token
 
 	cursor := 0
 
-	for _, match := range syntax.OpenClose.FindAllStringSubmatchIndex(data, -1) {
+	for _, match := range syntax.OpenClose.FindAllStringIndex(data, -1) {
 		fullStart, fullEnd := match[0], match[1]
-		subStart, subEnd := match[2], match[3]
+		// subStart, subEnd := match[2], match[3]
 
 		rawMatch := data[fullStart:fullEnd]
-		rawCommand := data[subStart:subEnd]
+		// rawCommand := data[subStart:subEnd]
 
 		if fullStart > cursor {
 			tokens = append(tokens, &Token{
@@ -35,20 +33,21 @@ func Tokenize(data string, syntax *syntax.Syntax) ([]*Token, error) {
 			continue
 		}
 
-		args, err := syntax.Parse(rawCommand)
+		command, data, err := syntax.Parse(rawMatch)
 		if err != nil {
 			return nil, fmt.Errorf("parsing args: %w", err)
 		}
 
-		if len(args) == 0 {
+		if command == "" {
 			cursor = fullEnd
 			continue
 		}
 
 		tokens = append(tokens, &Token{
-			Kind: TokenOpen,
-			Args: args,
-			Text: rawMatch,
+			Kind:    TokenOpen,
+			Command: command,
+			Data:    data,
+			Text:    rawMatch,
 		})
 
 		cursor = fullEnd

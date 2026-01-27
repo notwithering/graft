@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/notwithering/graft/preset"
-	"github.com/notwithering/graft/syntax"
+	"github.com/notwithering/graft/token"
 )
 
 var (
 	root     = "./src"
-	syntaxes = map[string]*syntax.Syntax{
-		"html": syntax.PrettierHTMLTagSyntax,
+	syntaxes = map[string]*token.Syntax{
+		"html": token.HTMLTagSyntax,
 	}
 	commands = preset.DefaultCommands
 	dest     = "./dist"

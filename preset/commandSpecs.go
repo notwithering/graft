@@ -13,37 +13,41 @@ var DefaultCommands = map[string]*CommandSpec{
 }
 
 var IncludeCommand = &CommandSpec{
-	Args:  []ArgType{ArgTypeSourcePtr},
+	Args: map[string]ArgType{
+		"src": ArgTypeSourcePtr,
+	},
 	Block: false,
 	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
-		target := ctx.Args[0].(*Source)
+		target := ctx.Args["src"].(*Source)
 		return target.Tree, nil
 	},
 }
 
 var ExtendCommand = &CommandSpec{
-	Args:  []ArgType{ArgTypeSourcePtr},
+	Args: map[string]ArgType{
+		"src": ArgTypeSourcePtr,
+	},
 	Block: true,
 	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
-		target := ctx.Args[0].(*Source)
+		target := ctx.Args["src"].(*Source)
 
 		definitions := make(map[string]*ast.Node)
 
 		ast.WalkList(ctx.Node.Children, func(ctx *ast.WalkContext) error {
-			if ctx.Node.Kind != ast.NodeCommand || ctx.Node.Args[0] != "define" || len(ctx.Node.Args) != 2 {
+			if ctx.Node.Kind != ast.NodeCommand || ctx.Node.Command != "define" {
 				return nil
 			}
 
-			definitions[ctx.Node.Args[1]] = ctx.Node
+			definitions[ctx.Node.Data.(map[string]any)["name"].(string)] = ctx.Node
 			return nil
 		})
 
 		tree, err := ast.WalkReplaceList(target.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
-			if ctx.Node.Kind != ast.NodeCommand || ctx.Node.Args[0] != "block" || len(ctx.Node.Args) != 2 {
+			if ctx.Node.Kind != ast.NodeCommand || ctx.Node.Command != "block" {
 				return nil, nil
 			}
 
-			def, ok := definitions[ctx.Node.Args[1]]
+			def, ok := definitions[ctx.Node.Data.(map[string]any)["name"].(string)]
 			if !ok {
 				return nil, nil
 			}
@@ -59,7 +63,9 @@ var ExtendCommand = &CommandSpec{
 }
 
 var DefineCommand = &CommandSpec{
-	Args:  []ArgType{ArgTypeString},
+	Args: map[string]ArgType{
+		"name": ArgTypeString,
+	},
 	Block: true,
 	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
 		return nil, nil
@@ -67,7 +73,9 @@ var DefineCommand = &CommandSpec{
 }
 
 var BlockCommand = &CommandSpec{
-	Args:  []ArgType{ArgTypeString},
+	Args: map[string]ArgType{
+		"name": ArgTypeString,
+	},
 	Block: false,
 	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
 		return nil, nil
