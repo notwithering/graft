@@ -101,13 +101,6 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[st
 	return nil
 }
 
-var (
-	ErrCycle            = errors.New("cycle detected")
-	ErrIncompatibleType = errors.New("incompatible type")
-	ErrSourceNotFound   = errors.New("source not found")
-	ErrTargetNotFound   = errors.New("target not found")
-)
-
 func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 	for _, src := range proj.Sources {
 		newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
