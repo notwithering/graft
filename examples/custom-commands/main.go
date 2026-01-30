@@ -20,7 +20,7 @@ var (
 		"last-built": {
 			Args:  map[string]preset.ArgType{},
 			Block: false,
-			Rewrite: func(ctx *preset.Context) ([]*ast.Node, error) {
+			Rewrite: func(ctx *preset.CommandContext) ([]*ast.Node, error) {
 				return []*ast.Node{{
 					Kind: ast.NodeText,
 					Text: time.Now().Format("2006-01-02 15:04:05"),

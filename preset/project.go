@@ -129,49 +129,18 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 				return nil, nil
 			}
 
-			args := make(map[string]any)
-
-			for key, arg := range ctx.Node.Data.(map[string]any) {
-				argType, ok := spec.Args[key]
-				if !ok {
-					continue
-				}
-
-				switch argType {
-				case ArgTypeString:
-					argStr, ok := arg.(string)
-					if !ok {
-						return nil, fmt.Errorf(errValBase, ErrIncompatibleType, reflect.TypeOf(arg))
-					}
-
-					args[key] = argStr
-				case ArgTypeSourcePtr:
-					nsrc, ok := proj.NodeSourceMap[ctx.Node]
-					if !ok {
-						return nil, fmt.Errorf(errValBase, ErrSourceNotFound, ctx.Node)
-					}
-
-					argStr, ok := arg.(string)
-					if !ok {
-						return nil, fmt.Errorf(errValBase, ErrIncompatibleType, reflect.TypeOf(arg))
-					}
-					targetPath := pathutil.TargetPath(nsrc.LocalPath, argStr)
-
-					targetSource, ok := proj.Sources[targetPath]
-					if !ok {
-						return nil, fmt.Errorf(errValBase, ErrTargetNotFound, targetPath)
-					}
-
-					args[key] = targetSource
-				}
-			}
-
-			rewriteCtx := &Context{
+			rewriteCtx := &CommandContext{
 				Project: proj,
 				Source:  src,
 				Node:    ctx.Node,
-				Args:    args,
+				Args:    nil,
 			}
+
+			args, err := rewriteCtx.ParseArgTypes(spec.Args)
+			if err != nil {
+				return nil, fmt.Errorf("parsing ArgTypes: %w", err)
+			}
+			rewriteCtx.Args = args
 
 			result, err := spec.Rewrite(rewriteCtx)
 			if err != nil {

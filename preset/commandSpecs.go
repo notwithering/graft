@@ -19,7 +19,7 @@ var IncludeCommand = &CommandSpec{
 		"src": ArgTypeSourcePtr,
 	},
 	Block: false,
-	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
+	Rewrite: func(ctx *CommandContext) ([]*ast.Node, error) {
 		target := ctx.Args["src"].(*Source)
 		return target.Tree, nil
 	},
@@ -30,26 +30,42 @@ var ExtendCommand = &CommandSpec{
 		"src": ArgTypeSourcePtr,
 	},
 	Block: true,
-	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
-		target := ctx.Args["src"].(*Source)
+	Rewrite: func(cmdCtx *CommandContext) ([]*ast.Node, error) {
+		target := cmdCtx.Args["src"].(*Source)
 
 		definitions := make(map[string]*ast.Node)
 
-		ast.WalkList(ctx.Node.Children, func(ctx *ast.WalkContext) error {
-			if ctx.Node.Kind != ast.NodeCommand || ctx.Node.Command != "define" {
+		ast.WalkList(cmdCtx.Node.Children, func(walkCtx *ast.WalkContext) error {
+			if walkCtx.Node.Kind != ast.NodeCommand || walkCtx.Node.Command != "define" {
 				return nil
 			}
 
-			definitions[ctx.Node.Data.(map[string]any)["name"].(string)] = ctx.Node
+			newCtx := cmdCtx.Clone()
+			newCtx.Node = walkCtx.Node
+
+			args, err := newCtx.ParseArgTypes(DefineCommand.Args)
+			if err != nil {
+				return err
+			}
+
+			definitions[args["name"].(string)] = walkCtx.Node
 			return nil
 		})
 
-		tree, err := ast.WalkReplaceList(target.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
-			if ctx.Node.Kind != ast.NodeCommand || ctx.Node.Command != "block" {
+		tree, err := ast.WalkReplaceList(target.Tree, func(walkCtx *ast.WalkContext) ([]*ast.Node, error) {
+			if walkCtx.Node.Kind != ast.NodeCommand || walkCtx.Node.Command != "block" {
 				return nil, nil
 			}
 
-			def, ok := definitions[ctx.Node.Data.(map[string]any)["name"].(string)]
+			newCtx := cmdCtx.Clone()
+			newCtx.Node = walkCtx.Node
+
+			args, err := newCtx.ParseArgTypes(BlockCommand.Args)
+			if err != nil {
+				return nil, err
+			}
+
+			def, ok := definitions[args["name"].(string)]
 			if !ok {
 				return nil, nil
 			}
@@ -69,7 +85,7 @@ var DefineCommand = &CommandSpec{
 		"name": ArgTypeString,
 	},
 	Block: true,
-	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
+	Rewrite: func(ctx *CommandContext) ([]*ast.Node, error) {
 		return nil, nil
 	},
 }
@@ -79,7 +95,7 @@ var BlockCommand = &CommandSpec{
 		"name": ArgTypeString,
 	},
 	Block: false,
-	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
+	Rewrite: func(ctx *CommandContext) ([]*ast.Node, error) {
 		return nil, nil
 	},
 }
@@ -87,7 +103,7 @@ var BlockCommand = &CommandSpec{
 var DeleteCommand = &CommandSpec{
 	Args:  map[string]ArgType{},
 	Block: true,
-	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
+	Rewrite: func(ctx *CommandContext) ([]*ast.Node, error) {
 		return []*ast.Node{}, nil
 	},
 }
