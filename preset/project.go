@@ -32,8 +32,6 @@ func NewProject(projectConfig ProjectConfig) *Project {
 	}
 }
 
-var ErrUnsupportedSyntaxReturnType = errors.New("unsupported syntax return type")
-
 func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[string]*CommandSpec) error {
 	err := filepath.Walk(proj.Config.Root, func(realPath string, info fs.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
@@ -70,7 +68,7 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[st
 
 				_, ok := token.Data.(map[string]any)
 				if !ok {
-					return fmt.Errorf("%w: %s", ErrUnsupportedSyntaxReturnType, reflect.TypeOf(token.Data))
+					return fmt.Errorf("unsupported syntax return type: %s", reflect.TypeOf(token.Data))
 				}
 			}
 
@@ -111,9 +109,6 @@ var (
 )
 
 func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
-	const errBase = "Resolve: %w"
-	const errValBase = "Resolve: %w: %v"
-
 	for _, src := range proj.Sources {
 		newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
 			if ctx.Node.Kind != ast.NodeCommand {
@@ -121,7 +116,7 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 			}
 
 			if slices.Contains(ctx.Path, ctx.Node) {
-				return nil, fmt.Errorf(errValBase, ErrCycle, "\n"+proj.showCycle(ctx))
+				return nil, fmt.Errorf("cycle detected:\n%s", proj.showCycle(ctx))
 			}
 
 			spec, ok := commands[ctx.Node.Command]

@@ -1,18 +1,14 @@
 package pathutil
 
 import (
-	"errors"
-	"fmt"
 	"path/filepath"
 	"strings"
 )
 
-var ErrRelativePath = errors.New("relative path")
-
 func LocalFromReal(root, realPath string) (string, error) {
 	localPath, err := filepath.Rel(root, realPath)
 	if err != nil {
-		return "", fmt.Errorf("LocalFromReal: %w: %w", ErrRelativePath, err)
+		return "", err
 	}
 
 	// WARN: may break with ../stuff -> /../stuff -> /stuff if path is outside of root (prob wont happen)

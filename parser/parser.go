@@ -2,21 +2,13 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/notwithering/graft/ast"
 	"github.com/notwithering/graft/stack"
 	"github.com/notwithering/graft/token"
 )
 
-var (
-	ErrUnmatchedEnd   = errors.New("unmatched end")
-	ErrUnclosedBlocks = errors.New("unclosed blocks")
-)
-
 func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, error) {
-	const errBase = "BuildTree: %w"
-
 	root := []*ast.Node{}
 	var nodeStack stack.Stack[*ast.Node]
 
@@ -46,7 +38,7 @@ func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, erro
 			}
 		case token.TokenClose:
 			if nodeStack.Len() == 0 {
-				return nil, fmt.Errorf(errBase, ErrUnmatchedEnd)
+				return nil, errors.New("unmatched end")
 			}
 			nodeStack.Pop()
 
@@ -59,7 +51,7 @@ func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, erro
 	}
 
 	if nodeStack.Len() != 0 {
-		return nil, fmt.Errorf(errBase, ErrUnclosedBlocks)
+		return nil, errors.New("unclosed blocks")
 	}
 
 	return root, nil
