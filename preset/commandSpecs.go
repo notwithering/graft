@@ -10,6 +10,8 @@ var DefaultCommands = map[string]*CommandSpec{
 	"extend": ExtendCommand,
 	"define": DefineCommand,
 	"block":  BlockCommand,
+
+	"delete": DeleteCommand,
 }
 
 var IncludeCommand = &CommandSpec{
@@ -79,5 +81,13 @@ var BlockCommand = &CommandSpec{
 	Block: false,
 	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
 		return nil, nil
+	},
+}
+
+var DeleteCommand = &CommandSpec{
+	Args:  map[string]ArgType{},
+	Block: true,
+	Rewrite: func(ctx *Context) ([]*ast.Node, error) {
+		return []*ast.Node{}, nil
 	},
 }
