@@ -20,6 +20,13 @@ func NewProject(projectConfig ProjectConfig) *Project {
 	}
 }
 
+type ProjectConfig struct {
+	Root     string
+	Commands map[string]*CommandSpec
+}
+
+// GetSpecName iterates over the projects commands until it finds the target CommandSpec, and
+// returns its defined name.
 func (proj *Project) GetSpecName(target *CommandSpec) (string, error) {
 	for name, spec := range proj.Config.Commands {
 		if spec == target {

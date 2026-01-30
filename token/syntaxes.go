@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	// HTMLTagSyntax parses into map[string]any
 	HTMLTagSyntax = &Syntax{
 		OpenClose: regexp.MustCompile(`(</?g-.+?\s*/?>)`),
 		Close:     regexp.MustCompile(`</g-.+?>`),
@@ -45,6 +46,8 @@ var (
 			}
 		},
 	}
+
+	// DoubleBraceSyntax parses into map[string]any
 	DoubleBraceSyntax = &Syntax{
 		OpenClose: regexp.MustCompile(`\{\{.+?\}\}`),
 		Close:     regexp.MustCompile(`\{\{end\}\}`),

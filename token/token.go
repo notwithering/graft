@@ -3,8 +3,7 @@ package token
 import "fmt"
 
 type Token struct {
-	Kind TokenKind
-	// Args []string
+	Kind    TokenKind
 	Command string
 	Data    any
 	Text    string

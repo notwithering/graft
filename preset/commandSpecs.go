@@ -4,6 +4,8 @@ import (
 	"github.com/notwithering/graft/ast"
 )
 
+// DefaultCommands includes: IncludeCommand, ExtendCommand, DefineCommand, BlockCommand, and
+// DeleteCommand
 var DefaultCommands = map[string]*CommandSpec{
 	"include": IncludeCommand,
 

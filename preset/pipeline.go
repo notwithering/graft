@@ -19,7 +19,7 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax) error {
 			return err
 		}
 
-		syntax, ok := syntaxes[pathutil.Language(realPath)]
+		syntax, ok := syntaxes[pathutil.LanguageFromPath(realPath)]
 		if !ok {
 			return nil
 		}

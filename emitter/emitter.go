@@ -6,6 +6,7 @@ import (
 	"github.com/notwithering/graft/ast"
 )
 
+// Emit renders the AST to a string.
 func Emit(tree []*ast.Node) string {
 	var out strings.Builder
 	emitNodes(&out, tree)

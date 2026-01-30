@@ -30,6 +30,8 @@ type CommandContext struct {
 	Args    map[string]any
 }
 
+// Clone makes a very shallow clone of the CommandContext.
+// Preserves Project, Source, Node and Args.
 func (ctx CommandContext) Clone() *CommandContext {
 	return &CommandContext{
 		Project: ctx.Project,
@@ -39,6 +41,9 @@ func (ctx CommandContext) Clone() *CommandContext {
 	}
 }
 
+// ParseArgTypes parses a map of ArgTypes with context and returns a map of parsed arguments.
+// It is not guaranteed that all ArgTypes will be present in the returned map,
+// but if they are present, they are guaranteed to be of the correct type.
 func (ctx *CommandContext) ParseArgTypes(argTypes map[string]ArgType) (map[string]any, error) {
 	args := make(map[string]any)
 

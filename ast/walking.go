@@ -1,13 +1,15 @@
 package ast
 
+// WalkContext represents the context of a node during a walk. Is given to the WalkFunc.
 type WalkContext struct {
 	Node *Node
 	Path []*Node
 }
 
+// WalkFunc is a callback function used in Walk and WalkList.
 type WalkFunc func(ctx *WalkContext) error
 
-// pre order
+// Walk performs a pre-order traversal of the AST starting from the given node.
 func Walk(n *Node, fn WalkFunc) error {
 	ctx := &WalkContext{
 		Node: n,
@@ -36,7 +38,7 @@ func walk(ctx *WalkContext, fn WalkFunc) error {
 	return nil
 }
 
-// pre order
+// WalkList performs a pre-order traversal of the AST starting from the given nodes.
 func WalkList(nodes []*Node, fn WalkFunc) error {
 	for _, n := range nodes {
 		if err := Walk(n, fn); err != nil {
@@ -47,8 +49,12 @@ func WalkList(nodes []*Node, fn WalkFunc) error {
 	return nil
 }
 
+// WalkFunc is a callback function used in WalkReplace and WalkReplaceList.
+// If returning nil, the node being walked is unchanged and won't be replaced.
+// If returning []*Node, the node being walked is replaced with the returned nodes.
 type WalkReplaceFunc func(ctx *WalkContext) ([]*Node, error)
 
+// WalkReplace performs a post-order traversal of the AST starting from the given node, replacing nodes in-place as returned by WalkReplaceFunc.
 func WalkReplace(n *Node, fn WalkReplaceFunc) ([]*Node, error) {
 	ctx := &WalkContext{
 		Node: n,
@@ -105,6 +111,7 @@ func walkReplace(ctx *WalkContext, fn WalkReplaceFunc) ([]*Node, error) {
 	return []*Node{ctx.Node}, nil
 }
 
+// WalkReplaceList performs a post-order traversal of the AST starting from the given nodes, replacing nodes in-place as returned by WalkReplaceFunc.
 func WalkReplaceList(nodes []*Node, fn WalkReplaceFunc) ([]*Node, error) {
 	var out []*Node
 

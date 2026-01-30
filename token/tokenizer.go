@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Tokenize parses the given data using the provided syntax into a flat slice of tokens.
 func Tokenize(data string, syntax *Syntax) ([]*Token, error) {
 	var tokens []*Token
 
@@ -11,10 +12,7 @@ func Tokenize(data string, syntax *Syntax) ([]*Token, error) {
 
 	for _, match := range syntax.OpenClose.FindAllStringIndex(data, -1) {
 		fullStart, fullEnd := match[0], match[1]
-		// subStart, subEnd := match[2], match[3]
-
 		rawMatch := data[fullStart:fullEnd]
-		// rawCommand := data[subStart:subEnd]
 
 		if fullStart > cursor {
 			tokens = append(tokens, &Token{

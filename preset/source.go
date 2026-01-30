@@ -29,7 +29,7 @@ func (proj *Project) NewSource(realPath string) (*Source, error) {
 	}
 	s.LocalPath = localPath
 
-	s.Language = pathutil.Language(s.RealPath)
+	s.Language = pathutil.LanguageFromPath(s.RealPath)
 
 	dataBytes, err := os.ReadFile(s.RealPath)
 	if err != nil {
@@ -41,6 +41,8 @@ func (proj *Project) NewSource(realPath string) (*Source, error) {
 	return s, nil
 }
 
+// Write writes the source file to the destination directory as its root.
+// Will automatically create any missing directories.
 func (src *Source) Write(dest string) error {
 	outputPath := filepath.Join(dest, strings.TrimLeft(src.LocalPath, "/"))
 	output := emitter.Emit(src.Tree)

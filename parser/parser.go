@@ -8,6 +8,8 @@ import (
 	"github.com/notwithering/graft/token"
 )
 
+// BuildTree builds an AST from a slice of tokens.
+// The blocks map should be used to define which commands are block commands.
 func BuildTree(tokens []*token.Token, blocks map[string]bool) ([]*ast.Node, error) {
 	root := []*ast.Node{}
 	var nodeStack stack.Stack[*ast.Node]

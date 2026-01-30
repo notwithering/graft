@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// LocalFromReal converts a real path to a local path relative to the root.
 func LocalFromReal(root, realPath string) (string, error) {
 	localPath, err := filepath.Rel(root, realPath)
 	if err != nil {
@@ -17,6 +18,7 @@ func LocalFromReal(root, realPath string) (string, error) {
 	return localPath, nil
 }
 
+// RealFromLocal converts a local path relative to the root to a real path.
 func RealFromLocal(root, localPath string) string {
 	realPath := strings.TrimLeft(localPath, "/")
 	realPath = filepath.Join(root, localPath)
@@ -24,6 +26,7 @@ func RealFromLocal(root, localPath string) string {
 	return realPath
 }
 
+// TargetPath converts a targetPath assumed to be relative to the sourcePath into local path.
 func TargetPath(sourcePath, targetPath string) string {
 	if strings.HasPrefix(targetPath, "/") {
 		return targetPath
@@ -31,7 +34,8 @@ func TargetPath(sourcePath, targetPath string) string {
 	return filepath.Join(filepath.Dir(sourcePath), targetPath)
 }
 
-func Language(path string) string {
+// LanguageFromPath returns the language of a file path.
+func LanguageFromPath(path string) string {
 	if ext := filepath.Ext(path); len(ext) >= 1 {
 		return filepath.Ext(path)[1:]
 	}
