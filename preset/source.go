@@ -3,7 +3,6 @@ package preset
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/notwithering/graft/ast"
@@ -16,9 +15,7 @@ type Source struct {
 	LocalPath string
 	Language  string
 	RawData   string
-
-	Syntax *regexp.Regexp
-	Tree   []*ast.Node
+	Tree      []*ast.Node
 }
 
 func (proj *Project) NewSource(realPath string) (*Source, error) {
