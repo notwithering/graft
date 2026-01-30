@@ -16,15 +16,16 @@ var (
 
 func main() {
 	proj := preset.NewProject(preset.ProjectConfig{
-		Root: root,
+		Root:     root,
+		Commands: commands,
 	})
 
-	if err := proj.Assemble(syntaxes, commands); err != nil {
+	if err := proj.Assemble(syntaxes); err != nil {
 		panic(err)
 	}
 
 	// detects cycle in resolve step
-	if err := proj.Resolve(commands); err != nil {
+	if err := proj.Resolve(); err != nil {
 		panic(err)
 	}
 

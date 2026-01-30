@@ -15,7 +15,8 @@ import (
 )
 
 type ProjectConfig struct {
-	Root string
+	Root     string
+	Commands map[string]*CommandSpec
 }
 
 type Project struct {
@@ -32,7 +33,7 @@ func NewProject(projectConfig ProjectConfig) *Project {
 	}
 }
 
-func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[string]*CommandSpec) error {
+func (proj *Project) Assemble(syntaxes map[string]*token.Syntax) error {
 	err := filepath.Walk(proj.Config.Root, func(realPath string, info fs.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
@@ -73,7 +74,7 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[st
 			}
 
 			blocks := make(map[string]bool)
-			for name, spec := range commands {
+			for name, spec := range proj.Config.Commands {
 				if spec.Block {
 					blocks[name] = true
 				}
@@ -101,7 +102,7 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax, commands map[st
 	return nil
 }
 
-func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
+func (proj *Project) Resolve() error {
 	for _, src := range proj.Sources {
 		newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
 			if ctx.Node.Kind != ast.NodeCommand {
@@ -112,7 +113,7 @@ func (proj *Project) Resolve(commands map[string]*CommandSpec) error {
 				return nil, fmt.Errorf("cycle detected:\n%s", proj.showCycle(ctx))
 			}
 
-			spec, ok := commands[ctx.Node.Command]
+			spec, ok := proj.Config.Commands[ctx.Node.Command]
 			if !ok {
 				return nil, nil
 			}
@@ -163,4 +164,14 @@ func (proj *Project) Write(dest string) error {
 	}
 
 	return nil
+}
+
+func (proj *Project) GetSpecName(target *CommandSpec) (string, error) {
+	for name, spec := range proj.Config.Commands {
+		if spec == target {
+			return name, nil
+		}
+	}
+
+	return "", errors.New("target not found in project commands")
 }

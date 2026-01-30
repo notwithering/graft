@@ -33,10 +33,15 @@ var ExtendCommand = &CommandSpec{
 	Rewrite: func(cmdCtx *CommandContext) ([]*ast.Node, error) {
 		target := cmdCtx.Args["src"].(*Source)
 
+		defineName, err := cmdCtx.Project.GetSpecName(DefineCommand)
+		if err != nil {
+			return nil, err
+		}
+
 		definitions := make(map[string]*ast.Node)
 
 		ast.WalkList(cmdCtx.Node.Children, func(walkCtx *ast.WalkContext) error {
-			if walkCtx.Node.Kind != ast.NodeCommand || walkCtx.Node.Command != "define" { // FIXME: will break if user edits the key for command
+			if walkCtx.Node.Kind != ast.NodeCommand || walkCtx.Node.Command != defineName {
 				return nil
 			}
 
@@ -52,8 +57,13 @@ var ExtendCommand = &CommandSpec{
 			return nil
 		})
 
+		blockName, err := cmdCtx.Project.GetSpecName(BlockCommand)
+		if err != nil {
+			return nil, err
+		}
+
 		tree, err := ast.WalkReplaceList(target.Tree, func(walkCtx *ast.WalkContext) ([]*ast.Node, error) {
-			if walkCtx.Node.Kind != ast.NodeCommand || walkCtx.Node.Command != "block" { // FIXME: will break if user edits the key for command
+			if walkCtx.Node.Kind != ast.NodeCommand || walkCtx.Node.Command != blockName {
 				return nil, nil
 			}
 
