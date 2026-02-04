@@ -82,55 +82,63 @@ func (proj *Project) Assemble(syntaxes map[string]*token.Syntax) error {
 	return nil
 }
 
-func (proj *Project) Resolve() error {
-	for _, src := range proj.Sources {
-		newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
-			if ctx.Node.Kind != ast.NodeCommand {
-				return nil, nil
-			}
-
-			if slices.Contains(ctx.Path, ctx.Node) {
-				return nil, fmt.Errorf("cycle detected:\n%s", proj.showCycle(ctx))
-			}
-
-			spec, ok := proj.Config.Commands[ctx.Node.Command]
-			if !ok {
-				return nil, nil
-			}
-
-			rewriteCtx := &CommandContext{
-				Project: proj,
-				Source:  src,
-				Node:    ctx.Node,
-				Args:    nil,
-			}
-
-			args, err := rewriteCtx.ParseArgTypes(spec.Args)
-			if err != nil {
-				return nil, fmt.Errorf("parsing ArgTypes: %w", err)
-			}
-			rewriteCtx.Args = args
-
-			result, err := spec.Rewrite(rewriteCtx)
-			if err != nil {
-				return nil, err
-			}
-
-			ast.WalkList(result, func(ctx *ast.WalkContext) error {
-				if _, ok := proj.NodeSourceMap[ctx.Node]; !ok {
-					proj.NodeSourceMap[ctx.Node] = src
-				}
-				return nil
-			})
-
-			return result, nil
-		})
-
-		if err != nil {
-			return err
+func (proj *Project) ResolveSource(src *Source) error {
+	newTree, err := ast.WalkReplaceList(src.Tree, func(ctx *ast.WalkContext) ([]*ast.Node, error) {
+		if ctx.Node.Kind != ast.NodeCommand {
+			return nil, nil
 		}
 
-		src.Tree = newTree
+		if slices.Contains(ctx.Path, ctx.Node) {
+			return nil, fmt.Errorf("cycle detected:\n%s", proj.showCycle(ctx))
+		}
+
+		spec, ok := proj.Config.Commands[ctx.Node.Command]
+		if !ok {
+			return nil, nil
+		}
+
+		rewriteCtx := &CommandContext{
+			Project: proj,
+			Source:  src,
+			Node:    ctx.Node,
+			Args:    nil,
+		}
+
+		args, err := rewriteCtx.ParseArgTypes(spec.Args)
+		if err != nil {
+			return nil, fmt.Errorf("parsing ArgTypes: %w", err)
+		}
+		rewriteCtx.Args = args
+
+		result, err := spec.Rewrite(rewriteCtx)
+		if err != nil {
+			return nil, err
+		}
+
+		ast.WalkList(result, func(ctx *ast.WalkContext) error {
+			if _, ok := proj.NodeSourceMap[ctx.Node]; !ok {
+				proj.NodeSourceMap[ctx.Node] = src
+			}
+			return nil
+		})
+
+		return result, nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	src.Tree = newTree
+
+	return nil
+}
+
+func (proj *Project) Resolve() error {
+	for _, src := range proj.Sources {
+		if err := proj.ResolveSource(src); err != nil {
+			return err
+		}
 	}
 
 	return nil
