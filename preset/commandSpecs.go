@@ -77,10 +77,13 @@ var ExtendCommand = &CommandSpec{
 				return nil, err
 			}
 
-			def, ok := definitions[args["name"].(string)]
+			name := args["name"].(string)
+
+			def, ok := definitions[name]
 			if !ok {
 				return nil, nil
 			}
+			delete(definitions, name)
 
 			return def.Children, nil
 		})
